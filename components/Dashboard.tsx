@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { CreditCard, Subscription, Frequency, AiUsageItem } from '../types';
 import { TrendingUp, Calendar, Clock, Coins, BrainCircuit, CheckCircle2, ExternalLink } from 'lucide-react';
@@ -64,7 +63,7 @@ export const Dashboard: React.FC<Props> = ({ cards, subscriptions, aiItems }) =>
         .map(b => {
             let expiryDate = new Date();
             
-            if (b.resetType === 'calendar') {
+            if (b.resetType === 'calendar' || !b.resetType) {
                 // Calendar year based - ALWAYS ends Dec 31
                 expiryDate = new Date(currentYear, 11, 31);
                 
@@ -82,20 +81,16 @@ export const Dashboard: React.FC<Props> = ({ cards, subscriptions, aiItems }) =>
                 // Anniversary based logic
                 if (card.renewalDate) {
                     const [y, m, d] = card.renewalDate.split('-').map(Number);
-                    // Renewal Date typically marks the START of the new year, so benefit expires DAY BEFORE
                     const thisYearRenewal = new Date(currentYear, m - 1, d);
                     
                     if (thisYearRenewal > now) {
-                        // Renewal is upcoming this year, benefits expire day before
                         expiryDate = new Date(thisYearRenewal);
                         expiryDate.setDate(expiryDate.getDate() - 1);
                     } else {
-                        // Renewal passed, next expiry is next year
                         expiryDate = new Date(currentYear + 1, m - 1, d);
                         expiryDate.setDate(expiryDate.getDate() - 1);
                     }
                 } else {
-                    // Fallback
                      expiryDate = new Date(currentYear, 11, 31);
                 }
             }

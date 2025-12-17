@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Save, Trash2, Calendar, Plus, Link as IconLink, Coins, Check, Edit2, Eye, EyeOff, GripVertical, DollarSign } from 'lucide-react';
 import { CreditCard, Benefit, Frequency } from '../types';
@@ -52,7 +51,7 @@ export const EditCardModal: React.FC<Props> = ({ isOpen, card, onClose, onSave, 
         setEditingBenefitId(null);
         setHasChanges(false);
     }
-  }, [card]);
+  }, [card, isOpen]);
 
   if (!isOpen || !editedCard) return null;
 
@@ -203,7 +202,7 @@ export const EditCardModal: React.FC<Props> = ({ isOpen, card, onClose, onSave, 
                                         onDragEnd={handleSort}
                                         className={`flex items-center justify-between bg-slate-950 p-3 rounded-xl border transition-all ${benefit.isHidden ? 'opacity-40 border-slate-800' : 'border-slate-800 hover:border-indigo-500/30'}`}
                                    >
-                                       <div className="cursor-grab active:cursor-grabbing p-1 text-slate-600 hover:text-indigo-400"><GripVertical size={20} /></div>
+                                       <div className="cursor-grab active:cursor-grabbing p-1 text-slate-600 hover:text-indigo-400 shrink-0"><GripVertical size={20} /></div>
                                        <div className="flex-1 px-4 min-w-0">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-medium text-sm text-white truncate">{benefit.title}</span>
@@ -215,17 +214,17 @@ export const EditCardModal: React.FC<Props> = ({ isOpen, card, onClose, onSave, 
                                                     type="number" 
                                                     value={benefit.value} 
                                                     onChange={(e) => handleValueChange(benefit.id, Number(e.target.value))}
-                                                    className="bg-transparent border-none p-0 text-xs font-mono text-emerald-400 w-16 focus:ring-0"
+                                                    className="bg-transparent border-none p-0 text-xs font-mono text-emerald-400 w-20 focus:ring-0 focus:outline-none"
                                                 />
                                                 <span className="text-[10px] text-slate-600">/ {benefit.frequency}</span>
                                             </div>
                                        </div>
-                                       <div className="flex gap-1">
-                                            <button onClick={() => handleToggleHidden(benefit.id)} className={`p-2 rounded-lg ${benefit.isHidden ? 'text-slate-500 hover:text-white' : 'text-indigo-400 bg-indigo-900/20'}`}>
+                                       <div className="flex gap-1 shrink-0">
+                                            <button onClick={() => handleToggleHidden(benefit.id)} title={benefit.isHidden ? "Unhide" : "Hide"} className={`p-2 rounded-lg transition-colors ${benefit.isHidden ? 'text-slate-500 hover:text-white hover:bg-slate-800' : 'text-indigo-400 bg-indigo-900/20 hover:bg-indigo-900/40'}`}>
                                                 {benefit.isHidden ? <EyeOff size={16} /> : <Eye size={16} />}
                                             </button>
-                                            <button onClick={() => {setNewBenefit(benefit); setEditingBenefitId(benefit.id); setIsAddingBenefit(true);}} className="p-2 text-slate-500 hover:text-white"><Edit2 size={16} /></button>
-                                            <button onClick={() => handleRemoveBenefit(benefit.id)} className="p-2 text-slate-500 hover:text-rose-400"><Trash2 size={16} /></button>
+                                            <button onClick={() => {setNewBenefit(benefit); setEditingBenefitId(benefit.id); setIsAddingBenefit(true);}} className="p-2 text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg"><Edit2 size={16} /></button>
+                                            <button onClick={() => handleRemoveBenefit(benefit.id)} className="p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-900/20 rounded-lg"><Trash2 size={16} /></button>
                                        </div>
                                    </div>
                                ))}
