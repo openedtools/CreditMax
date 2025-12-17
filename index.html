@@ -3,7 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CreditMax</title>
+    <title>CreditMax - Benefit Tracker</title>
+    
+    <script>
+      // Polyfill process.env IMMEDIATELY before any modules load
+      window.process = {
+        env: {
+          API_KEY: "process.env.API_KEY" // Replaced by GitHub Action or handled by environment
+        }
+      };
+    </script>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -29,23 +39,63 @@
 {
   "imports": {
     "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
     "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
     "lucide-react": "https://esm.sh/lucide-react@0.454.0",
     "@google/genai": "https://esm.sh/@google/genai@1.3.0",
     "recharts": "https://esm.sh/recharts@2.12.7",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
   }
 }
 </script>
+
+    <script>
+      // Global error handler to show errors on screen instead of a blank page
+      window.onerror = function(message, source, lineno, colno, error) {
+        const root = document.getElementById('root');
+        if (root) {
+          root.innerHTML = `
+            <div style="padding: 40px; color: #f87171; background: #020617; font-family: system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+              <div style="background: #111827; padding: 30px; border-radius: 16px; border: 1px solid #ef4444; max-width: 600px; width: 90%;">
+                <h1 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; color: #ef4444;">App failed to load</h1>
+                <p style="font-size: 0.95rem; color: #cbd5e1; line-height: 1.5; text-align: left; background: #000; padding: 10px; border-radius: 4px; overflow-x: auto; font-family: monospace;">${message}</p>
+                <div style="font-size: 0.75rem; color: #64748b; margin-top: 20px; font-family: monospace; word-break: break-all;">
+                  At: ${source || 'unknown'}:${lineno || '?'}:${colno || '?'}
+                </div>
+                <button onclick="window.location.reload()" style="margin-top: 25px; padding: 10px 24px; background: #4f46e5; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Try Again</button>
+              </div>
+            </div>
+          `;
+        }
+        return false;
+      };
+    </script>
+    <style>
+      .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+      
+      @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      .animate-spin { animation: spin 1s linear infinite; }
+      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+      .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    </style>
   <link rel="stylesheet" href="/index.css">
 </head>
   <body class="bg-slate-950 text-slate-200 antialiased selection:bg-indigo-500 selection:text-white">
-    <div id="root"></div>
+    <div id="root">
+      <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
+        <div style="width: 48px; height: 48px; border: 4px solid #4f46e5; border-top-color: transparent; border-radius: 50%;" class="animate-spin"></div>
+        <p style="color: #94a3b8; font-weight: 500;" class="animate-pulse">Initializing CreditMax Modules...</p>
+      </div>
+    </div>
     
-    <!-- Entry Point: We use type="text/babel" so Babel handles the TSX -->
-    <!-- data-type="module" tells Babel to treat this as an ES module -->
-    <script type="text/babel" data-type="module" data-presets="typescript,react" src="index.tsx"></script>
+    <!-- Entry Point -->
+    <script type="text/babel" data-type="module" data-presets="typescript,react">
+      import "./index.tsx";
+    </script>
   <script type="module" src="/index.tsx"></script>
 </body>
 </html>

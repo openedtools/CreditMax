@@ -1,10 +1,18 @@
-
 import { GoogleGenAI, Type, Schema } from "@google/genai";
-import { Frequency, CreditCard, Subscription, AiUsageItem } from "../types";
+import { Frequency, CreditCard, Subscription, AiUsageItem } from "../types.ts";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Safe initialization of the AI client
+const getAIClient = () => {
+  // Use window.process for browser compatibility
+  const apiKey = (window as any).process?.env?.API_KEY || "";
+  if (!apiKey || apiKey === "process.env.API_KEY") {
+    console.warn("Gemini API key is not configured. AI features will be disabled.");
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 export const fetchCardBenefits = async (cardName: string) => {
+  const ai = getAIClient();
   const benefitSchema: Schema = {
     type: Type.OBJECT,
     properties: {
@@ -56,6 +64,7 @@ export const fetchCardBenefits = async (cardName: string) => {
 };
 
 export const analyzeWalletOptimization = async (cards: CreditCard[], subscriptions: Subscription[], aiItems: AiUsageItem[]) => {
+  const ai = getAIClient();
   const analysisSchema: Schema = {
     type: Type.OBJECT,
     properties: {

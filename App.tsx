@@ -1,23 +1,22 @@
-
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Subscription, ViewState, Benefit, Frequency, AiUsageItem } from './types';
-import { MOCK_CARDS, MOCK_SUBSCRIPTIONS, MOCK_AI_ITEMS } from './constants';
-import { Dashboard } from './components/Dashboard';
-import { CreditCardDetail } from './components/CreditCardDetail';
-import { SubscriptionList } from './components/SubscriptionList';
-import { BenefitsList } from './components/BenefitsList';
-import { PerksList } from './components/PerksList';
-import { AddCardModal } from './components/AddCardModal';
-import { EditCardModal } from './components/EditCardModal';
-import { AddSubscriptionModal } from './components/AddSubscriptionModal';
-import { AiUsageTracker } from './components/AiUsageTracker';
-import { AddAiServiceModal } from './components/AddAiServiceModal';
-import { PointsTracker } from './components/PointsTracker';
-import { AiAdvisor } from './components/AiAdvisor';
-import { Settings } from './components/Settings';
-import { fetchCardBenefits } from './services/gemini';
+import { CreditCard, Subscription, ViewState, Benefit, Frequency, AiUsageItem } from './types.ts';
+import { MOCK_CARDS, MOCK_SUBSCRIPTIONS, MOCK_AI_ITEMS } from './constants.ts';
+import { Dashboard } from './components/Dashboard.tsx';
+import { CreditCardDetail } from './components/CreditCardDetail.tsx';
+import { SubscriptionList } from './components/SubscriptionList.tsx';
+import { BenefitsList } from './components/BenefitsList.tsx';
+import { PerksList } from './components/PerksList.tsx';
+import { AddCardModal } from './components/AddCardModal.tsx';
+import { EditCardModal } from './components/EditCardModal.tsx';
+import { AddSubscriptionModal } from './components/AddSubscriptionModal.tsx';
+import { AiUsageTracker } from './components/AiUsageTracker.tsx';
+import { AddAiServiceModal } from './components/AddAiServiceModal.tsx';
+import { PointsTracker } from './components/PointsTracker.tsx';
+import { AiAdvisor } from './components/AiAdvisor.tsx';
+import { Settings } from './components/Settings.tsx';
+import { fetchCardBenefits } from './services/gemini.ts';
 import { LayoutDashboard, CreditCard as IconCard, Repeat, Plus, ChevronRight, Gift, ArrowLeft, ShieldCheck, BrainCircuit, Coins, Lightbulb, Sparkles, Settings as IconSettings } from 'lucide-react';
-import { CardVisual } from './components/CardVisual';
+import { CardVisual } from './components/CardVisual.tsx';
 
 const TIPS = [
     "Linking your ChatGPT subscription to a card with digital credits can save you up to $20/mo.",
@@ -44,7 +43,7 @@ const TipsWidget = () => {
             <h4 className="text-sm font-semibold text-indigo-300 mb-1 flex items-center gap-2">
                 <Lightbulb size={14} className="text-yellow-400" /> Did you know?
             </h4>
-            <p className="text-xs text-indigo-400/70 leading-relaxed min-h-[3rem] animate-in fade-in duration-500 key={tipIndex}">
+            <p className="text-xs text-indigo-400/70 leading-relaxed min-h-[3rem] animate-in fade-in duration-500">
                 {TIPS[tipIndex]}
             </p>
         </div>
@@ -70,7 +69,6 @@ const usePersistentState = <T,>(key: string, initialValue: T): [T, React.Dispatc
 };
 
 const App: React.FC = () => {
-  // Use persistent state for core data
   const [cards, setCards] = usePersistentState<CreditCard[]>('creditmax_cards', MOCK_CARDS);
   const [subscriptions, setSubscriptions] = usePersistentState<Subscription[]>('creditmax_subscriptions', MOCK_SUBSCRIPTIONS);
   const [aiItems, setAiItems] = usePersistentState<AiUsageItem[]>('creditmax_ai_items', MOCK_AI_ITEMS);
@@ -78,22 +76,12 @@ const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('dashboard');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddSubModalOpen, setIsAddSubModalOpen] = useState(false);
-  
-  // Subscription Edit State
   const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
-
-  // AI Edit State
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [editingAiItem, setEditingAiItem] = useState<AiUsageItem | null>(null);
-  
-  // Edit State
   const [editingCard, setEditingCard] = useState<CreditCard | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-  // Selected Card State (for drill down)
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
-
-  // Refresh State
   const [refreshingCardId, setRefreshingCardId] = useState<string | null>(null);
 
   const handleAddCard = (newCard: CreditCard) => {
@@ -147,7 +135,6 @@ const App: React.FC = () => {
     }));
   };
 
-  // AI HANDLERS
   const handleSaveAiItem = (item: AiUsageItem) => {
       if (editingAiItem) {
           setAiItems(prev => prev.map(i => i.id === item.id ? item : i));
@@ -172,7 +159,6 @@ const App: React.FC = () => {
       setAiItems(prev => {
           const idx = prev.findIndex(i => i.id === id);
           if (idx === -1) return prev;
-          
           const newItems = [...prev];
           if (direction === 'up' && idx > 0) {
               [newItems[idx], newItems[idx - 1]] = [newItems[idx - 1], newItems[idx]];
@@ -206,9 +192,8 @@ const App: React.FC = () => {
             usedAmount: 0,
             isCredit: b.isCredit,
             category: b.category,
-            resetType: 'calendar' // default assumption for AI fetched benefits
+            resetType: 'calendar'
         }));
-
         const mergedBenefits = newBenefits.map(newB => {
             const existing = card.benefits.find(oldB => oldB.title.toLowerCase() === newB.title.toLowerCase());
             if (existing) {
@@ -216,11 +201,7 @@ const App: React.FC = () => {
             }
             return newB;
         });
-
-        handleUpdateCard({
-            ...card,
-            benefits: mergedBenefits
-        });
+        handleUpdateCard({ ...card, benefits: mergedBenefits });
     } catch (error) {
         alert("Failed to refresh benefits. Please try again.");
     } finally {
@@ -235,14 +216,8 @@ const App: React.FC = () => {
       }));
   };
 
-  // DATA MANAGEMENT Handlers
   const handleExportData = () => {
-      const data = {
-          cards,
-          subscriptions,
-          aiItems,
-          exportDate: new Date().toISOString()
-      };
+      const data = { cards, subscriptions, aiItems, exportDate: new Date().toISOString() };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -286,10 +261,7 @@ const App: React.FC = () => {
           if (!card) return <div>Card not found</div>;
           return (
               <div>
-                  <button 
-                    onClick={() => setSelectedCardId(null)}
-                    className="mb-6 text-slate-400 hover:text-white flex items-center gap-2 text-sm font-medium transition-colors"
-                  >
+                  <button onClick={() => setSelectedCardId(null)} className="mb-6 text-slate-400 hover:text-white flex items-center gap-2 text-sm font-medium transition-colors">
                       <ArrowLeft size={16} /> Back to Wallet
                   </button>
                   <CreditCardDetail 
@@ -302,7 +274,6 @@ const App: React.FC = () => {
               </div>
           );
       }
-
       return (
           <div className="space-y-6">
               {cards.length > 0 ? (
@@ -312,13 +283,8 @@ const App: React.FC = () => {
                           const totalValue = monetaryBenefits.reduce((sum, b) => sum + b.value, 0);
                           const totalUsed = monetaryBenefits.reduce((sum, b) => sum + b.usedAmount, 0);
                           const utilization = totalValue > 0 ? Math.round((totalUsed / totalValue) * 100) : 0;
-
                           return (
-                            <div 
-                                key={card.id} 
-                                onClick={() => setSelectedCardId(card.id)}
-                                className="group bg-slate-900 rounded-2xl p-4 border border-slate-800 hover:border-indigo-500/50 transition-all cursor-pointer shadow-lg shadow-black/20 hover:shadow-indigo-900/10"
-                            >
+                            <div key={card.id} onClick={() => setSelectedCardId(card.id)} className="group bg-slate-900 rounded-2xl p-4 border border-slate-800 hover:border-indigo-500/50 transition-all cursor-pointer shadow-lg shadow-black/20 hover:shadow-indigo-900/10">
                                 <div className="mb-4 pointer-events-none">
                                     <CardVisual card={card} />
                                 </div>
@@ -341,12 +307,7 @@ const App: React.FC = () => {
                             </div>
                           );
                       })}
-                      
-                      {/* Add Card Button Tile */}
-                      <button 
-                        onClick={() => setIsAddModalOpen(true)}
-                        className="flex flex-col items-center justify-center h-full min-h-[200px] rounded-2xl border-2 border-dashed border-slate-800 hover:border-indigo-500/50 hover:bg-slate-900/50 transition-all group gap-3"
-                      >
+                      <button onClick={() => setIsAddModalOpen(true)} className="flex flex-col items-center justify-center h-full min-h-[200px] rounded-2xl border-2 border-dashed border-slate-800 hover:border-indigo-500/50 hover:bg-slate-900/50 transition-all group gap-3">
                           <div className="w-12 h-12 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center group-hover:scale-110 transition-transform group-hover:border-indigo-500/50">
                               <Plus className="text-slate-400 group-hover:text-indigo-400" />
                           </div>
@@ -359,11 +320,8 @@ const App: React.FC = () => {
                         <IconCard size={32} />
                     </div>
                     <h3 className="text-lg font-medium text-white">No cards added yet</h3>
-                    <p className="text-slate-500 max-w-sm mx-auto mt-2 mb-6">Add your first credit card to start tracking benefits and optimizing your subscriptions.</p>
-                    <button 
-                        onClick={() => setIsAddModalOpen(true)}
-                        className="text-indigo-400 hover:text-indigo-300 font-medium flex items-center justify-center gap-2"
-                    >
+                    <p className="text-slate-500 max-w-sm mx-auto mt-2 mb-6">Add your first credit card to start tracking benefits.</p>
+                    <button onClick={() => setIsAddModalOpen(true)} className="text-indigo-400 hover:text-indigo-300 font-medium flex items-center justify-center gap-2">
                         <Plus size={16} /> Add your first card
                     </button>
                 </div>
@@ -375,8 +333,6 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30">
       <div className="flex min-h-screen">
-        
-        {/* Sidebar Navigation */}
         <aside className="w-20 lg:w-64 bg-slate-900/50 backdrop-blur-xl border-r border-slate-800 flex-shrink-0 fixed h-full z-20 flex flex-col justify-between">
           <div>
             <div className="p-6 flex items-center gap-3 mb-2">
@@ -385,207 +341,68 @@ const App: React.FC = () => {
                 </div>
                 <span className="hidden lg:block font-bold text-xl tracking-tight text-white">CreditMax</span>
             </div>
-            
             <nav className="px-3 space-y-1">
-                <NavItem 
-                    active={view === 'dashboard'} 
-                    onClick={() => setView('dashboard')} 
-                    icon={<LayoutDashboard size={20} />} 
-                    label="Overview" 
-                />
-                <NavItem 
-                    active={view === 'advisor'} 
-                    onClick={() => setView('advisor')} 
-                    icon={<Sparkles size={20} />} 
-                    label="AI Advisor" 
-                />
-                <NavItem 
-                    active={view === 'cards'} 
-                    onClick={() => { setView('cards'); setSelectedCardId(null); }} 
-                    icon={<IconCard size={20} />} 
-                    label="My Wallet" 
-                />
-                <NavItem 
-                    active={view === 'points'} 
-                    onClick={() => setView('points')} 
-                    icon={<Coins size={20} />} 
-                    label="Points Tracker" 
-                />
-                 <NavItem 
-                    active={view === 'benefits'} 
-                    onClick={() => setView('benefits')} 
-                    icon={<Gift size={20} />} 
-                    label="Monetary Benefits" 
-                />
-                <NavItem 
-                    active={view === 'perks'} 
-                    onClick={() => setView('perks')} 
-                    icon={<ShieldCheck size={20} />} 
-                    label="Perks & Status" 
-                />
-                <NavItem 
-                    active={view === 'subscriptions'} 
-                    onClick={() => setView('subscriptions')} 
-                    icon={<Repeat size={20} />} 
-                    label="Subscriptions" 
-                />
-                <NavItem 
-                    active={view === 'ai-hub'} 
-                    onClick={() => setView('ai-hub')} 
-                    icon={<BrainCircuit size={20} />} 
-                    label="AI Usage Hub" 
-                />
+                <NavItem active={view === 'dashboard'} onClick={() => setView('dashboard')} icon={<LayoutDashboard size={20} />} label="Overview" />
+                <NavItem active={view === 'advisor'} onClick={() => setView('advisor')} icon={<Sparkles size={20} />} label="AI Advisor" />
+                <NavItem active={view === 'cards'} onClick={() => { setView('cards'); setSelectedCardId(null); }} icon={<IconCard size={20} />} label="My Wallet" />
+                <NavItem active={view === 'points'} onClick={() => setView('points')} icon={<Coins size={20} />} label="Points Tracker" />
+                <NavItem active={view === 'benefits'} onClick={() => setView('benefits')} icon={<Gift size={20} />} label="Monetary Benefits" />
+                <NavItem active={view === 'perks'} onClick={() => setView('perks')} icon={<ShieldCheck size={20} />} label="Perks & Status" />
+                <NavItem active={view === 'subscriptions'} onClick={() => setView('subscriptions')} icon={<Repeat size={20} />} label="Subscriptions" />
+                <NavItem active={view === 'ai-hub'} onClick={() => setView('ai-hub')} icon={<BrainCircuit size={20} />} label="AI Usage Hub" />
             </nav>
           </div>
-
           <div className="p-4 space-y-4">
             <TipsWidget />
-            <NavItem 
-                active={view === 'settings'} 
-                onClick={() => setView('settings')} 
-                icon={<IconSettings size={20} />} 
-                label="Settings" 
-            />
+            <NavItem active={view === 'settings'} onClick={() => setView('settings')} icon={<IconSettings size={20} />} label="Settings" />
           </div>
         </aside>
-
-        {/* Main Content */}
         <main className="flex-1 ml-20 lg:ml-64 p-6 lg:p-10 max-w-7xl mx-auto w-full relative">
-            
-            {/* Dynamic Header */}
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
                 <div>
                     <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
                         <span>Home</span>
                         <ChevronRight size={12} />
-                        <span className="text-slate-300 capitalize">{view === 'cards' ? 'Wallet' : view === 'ai-hub' ? 'AI Hub' : view}</span>
+                        <span className="text-slate-300 capitalize">{view}</span>
                     </div>
                     <h1 className="text-3xl font-bold text-white capitalize tracking-tight">
-                        {view === 'cards' ? (selectedCardId ? 'Card Details' : 'My Wallet') : view === 'dashboard' ? 'Financial Overview' : view === 'benefits' ? 'Benefit Tracker' : view === 'perks' ? 'Perks & Status' : view === 'ai-hub' ? 'AI Usage Hub' : view === 'points' ? 'Points Tracker' : view === 'advisor' ? 'AI Advisor' : view === 'settings' ? 'Settings' : 'Subscriptions'}
+                        {view === 'cards' ? (selectedCardId ? 'Card Details' : 'My Wallet') : view}
                     </h1>
                 </div>
-                
                 {view === 'cards' && !selectedCardId && (
-                    <button 
-                        onClick={() => setIsAddModalOpen(true)}
-                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg shadow-lg shadow-indigo-900/30 flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
-                    >
+                    <button onClick={() => setIsAddModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg shadow-lg shadow-indigo-900/30 flex items-center gap-2 transition-all hover:scale-105">
                         <Plus size={18} />
                         <span className="hidden sm:inline font-medium">Add New Card</span>
                     </button>
                 )}
-                 {view === 'subscriptions' && (
-                    <button 
-                        onClick={() => { setEditingSubscription(null); setIsAddSubModalOpen(true); }}
-                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg shadow-lg shadow-indigo-900/30 flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
-                    >
-                        <Plus size={18} />
-                        <span className="hidden sm:inline font-medium">Add Subscription</span>
-                    </button>
-                )}
             </header>
-
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
                 {view === 'dashboard' && <Dashboard cards={cards} subscriptions={subscriptions} aiItems={aiItems} />}
-                
                 {view === 'cards' && renderWalletView()}
-
-                {view === 'advisor' && (
-                    <AiAdvisor cards={cards} subscriptions={subscriptions} aiItems={aiItems} />
-                )}
-
-                {view === 'benefits' && (
-                    <BenefitsList cards={cards} onUpdateBenefit={handleUpdateBenefit} />
-                )}
-                
-                {view === 'perks' && (
-                    <PerksList cards={cards} />
-                )}
-
-                {view === 'subscriptions' && (
-                    <SubscriptionList 
-                        subscriptions={subscriptions} 
-                        cards={cards} 
-                        onLinkCard={handleLinkCardToSub}
-                        onEdit={openSubscriptionEdit}
-                        onDelete={handleDeleteSubscription}
-                    />
-                )}
-
-                {view === 'ai-hub' && (
-                    <AiUsageTracker 
-                        items={aiItems} 
-                        onUpdateUsage={handleUpdateAiUsage}
-                        onEdit={openAiEditModal}
-                        onDelete={handleDeleteAiItem}
-                        onReorder={handleReorderAiItem}
-                        onAdd={openAiAddModal}
-                    />
-                )}
-
-                {view === 'points' && (
-                    <PointsTracker cards={cards} />
-                )}
-
-                {view === 'settings' && (
-                    <Settings 
-                        onExport={handleExportData}
-                        onImport={handleImportData}
-                        onReset={handleResetData}
-                    />
-                )}
+                {view === 'advisor' && <AiAdvisor cards={cards} subscriptions={subscriptions} aiItems={aiItems} />}
+                {view === 'benefits' && <BenefitsList cards={cards} onUpdateBenefit={handleUpdateBenefit} />}
+                {view === 'perks' && <PerksList cards={cards} />}
+                {view === 'subscriptions' && <SubscriptionList subscriptions={subscriptions} cards={cards} onLinkCard={handleLinkCardToSub} onEdit={openSubscriptionEdit} onDelete={handleDeleteSubscription} />}
+                {view === 'ai-hub' && <AiUsageTracker items={aiItems} onUpdateUsage={handleUpdateAiUsage} onEdit={openAiEditModal} onDelete={handleDeleteAiItem} onReorder={handleReorderAiItem} onAdd={openAiAddModal} />}
+                {view === 'points' && <PointsTracker cards={cards} />}
+                {view === 'settings' && <Settings onExport={handleExportData} onImport={handleImportData} onReset={handleResetData} />}
             </div>
         </main>
-
       </div>
-
-      {/* Modals */}
-      <AddCardModal 
-        isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)} 
-        onAdd={handleAddCard} 
-      />
-
-      <EditCardModal
-        isOpen={isEditModalOpen}
-        card={editingCard}
-        onClose={() => { setIsEditModalOpen(false); setEditingCard(null); }}
-        onSave={handleUpdateCard}
-        onDelete={handleDeleteCard}
-      />
-      
-      <AddSubscriptionModal
-        isOpen={isAddSubModalOpen}
-        onClose={() => { setIsAddSubModalOpen(false); setEditingSubscription(null); }}
-        onSave={handleSaveSubscription}
-        initialData={editingSubscription}
-      />
-      
-      <AddAiServiceModal
-        isOpen={isAiModalOpen}
-        onClose={() => { setIsAiModalOpen(false); setEditingAiItem(null); }}
-        onSave={handleSaveAiItem}
-        initialItem={editingAiItem}
-      />
-
+      <AddCardModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onAdd={handleAddCard} />
+      <EditCardModal isOpen={isEditModalOpen} card={editingCard} onClose={() => { setIsEditModalOpen(false); setEditingCard(null); }} onSave={handleUpdateCard} onDelete={handleDeleteCard} />
+      <AddSubscriptionModal isOpen={isAddSubModalOpen} onClose={() => { setIsAddSubModalOpen(false); setEditingSubscription(null); }} onSave={handleSaveSubscription} initialData={editingSubscription} />
+      <AddAiServiceModal isOpen={isAiModalOpen} onClose={() => { setIsAiModalOpen(false); setEditingAiItem(null); }} onSave={handleSaveAiItem} initialItem={editingAiItem} />
     </div>
   );
 };
 
 const NavItem = ({ active, onClick, icon, label }: any) => (
-    <button
-        onClick={onClick}
-        className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group ${
-            active 
-            ? 'bg-indigo-600 text-white shadow-md shadow-indigo-900/20' 
-            : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
-        }`}
-    >
+    <button onClick={onClick} className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group ${active ? 'bg-indigo-600 text-white shadow-md shadow-indigo-900/20' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'}`}>
         <div className={`transition-transform group-hover:scale-110 ${active ? '' : 'opacity-70 group-hover:opacity-100'}`}>
             {icon}
         </div>
         <span className="hidden lg:block font-medium text-sm">{label}</span>
-        {active && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white/50 hidden lg:block"></div>}
     </button>
 );
 
